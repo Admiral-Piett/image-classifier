@@ -62,7 +62,7 @@ for param in model.parameters():
     param.requires_grad = False
 
 classifier = nn.Sequential(OrderedDict([
-#     ('dropout', nn.Dropout(p=0.03)),
+    ('dropout', nn.Dropout(p=0.03)),
     # 50176 comes from 224 X 224, shape of the images
     ('fc1', nn.Linear(1024, 500)),
     ('relu1', nn.ReLU()),
@@ -84,21 +84,20 @@ optimizer = optim.Adam(model.classifier.parameters(), lr=0.01)
 def validation(model, testloader, criterion):
     test_loss = 0
     accuracy = 0
-    count = 0
     for images, labels in testloader:
         labels.resize_(images.shape[0])
 
         images, labels = inputs.to(device), labels.to(device)
 
         output = model.forward(images)
-        print(output.size())
-        print(labels.size())
+        # print(output.size())
+        # print(labels.size())
         ##### PROBLEM batch size (818) is being reduced by size of batch (64, every time leaving 51 at the end
         test_loss += criterion(output, labels).item()
 
         ps = torch.exp(output)
         equality = (labels.data == ps.max(dim=1)[1])
-        accuracy += equality.type(torch.cuda.FloatTensor).mean()
+        accuracy += equality.type(torch.FloatTensor).mean()
 
     return test_loss, accuracy
 
@@ -150,14 +149,14 @@ print_every = 40
 steps = 0
 
 # change to cuda
-model.to('cuda')
+# model.to('cuda')
 
 for e in range(epochs):
     running_loss = 0
     for ii, (inputs, labels) in enumerate(trainloader):
         steps += 1
 
-        inputs, labels = inputs.to('cuda'), labels.to('cuda')
+        # inputs, labels = inputs.to('cuda'), labels.to('cuda')
 
         optimizer.zero_grad()
 
