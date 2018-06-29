@@ -55,22 +55,26 @@ validloader = torch.utils.data.DataLoader(valid_data, batch_size=64)
 with open('cat_to_name.json', 'r') as f:
     cat_to_name = json.load(f)
 
-model = models.densenet121(pretrained=True)
+# model = models.densenet121(pretrained=True)
+model = models.vgg16(pretrained=True)
 print(model)
+
 
 for param in model.parameters():
     param.requires_grad = False
 
 classifier = nn.Sequential(OrderedDict([
-    ('dropout', nn.Dropout(p=0.03)),
     # 50176 comes from 224 X 224, shape of the images
-    ('fc1', nn.Linear(1024, 500)),
+    ('fc1', nn.Linear(25088, 12544)),
     ('relu1', nn.ReLU()),
-#     ('fc2', nn.Linear(25139, 12620)),
-#     ('relu2', nn.ReLU()),
-#     ('fc1', nn.Linear(12620, 500)),
-#     ('relu1', nn.ReLU()),
-    ('fc2', nn.Linear(500, 102)),
+    ('dropout', nn.Dropout(p=0.03)),
+    ('fc2', nn.Linear(12544, 6272)),
+    ('relu2', nn.ReLU()),
+    ('dropout', nn.Dropout(p=0.03)),
+    ('fc3', nn.Linear(6272, 1000)),
+    ('relu3', nn.ReLU()),
+    ('dropout', nn.Dropout(p=0.03)),
+    ('fc4', nn.Linear(1000, 102)),
     ('output', nn.LogSoftmax(dim=1))
 ]))
 
